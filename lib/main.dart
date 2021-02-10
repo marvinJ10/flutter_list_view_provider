@@ -1,89 +1,62 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_list_view_provider/playlistScreen.dart';
-import 'package:flutter_list_view_provider/videosProvider.dart';
-import 'package:provider/provider.dart';
 
-void main() => runApp(MyApp());
+import 'services/api_service.dart';
+import 'widgets/page_body.dart';
 
-class PlaylistScreenProvider extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider<VideosProvider>(
-      create: (_) {
-        return VideosProvider();
-      },
-      child: PlaylistScreen(),
-    );
-  }
-}
-
-class MainScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Screen'),
-      ),
-      body: Center(
-        child: RaisedButton(
-          child: Text("Go To StatefulWidget Screen"),
-          onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) {
-                  return PlaylistScreenProvider();
-                },
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
+void main() {
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Provider',
-      theme: buildThemeData(context),
-      home: MainScreen(),
-    );
-  }
-
-  ThemeData buildThemeData(BuildContext context) {
-    return ThemeData(
-      primaryColor: cBlue,
-      primaryIconTheme: IconThemeData(
-        color: cBlack,
-      ),
-      appBarTheme: AppBarTheme(
-        color: Colors.white,
-        textTheme: TextTheme(
-          title: TextStyle(
-            fontSize: 26.0,
-            fontWeight: FontWeight.w800,
-            color: cBlue,
-          ),
-        ),
-      ),
-      textTheme: TextTheme(
-        title: TextStyle(
-          color: cBlue,
-          fontSize: 16.0,
-          fontWeight: FontWeight.bold,
-          height: 1.3,
-        ),
-        body1: TextStyle(
-          color: cBlack,
-          fontSize: 18.0,
-          height: 3.1,
-        ),
-      ),
+      debugShowCheckedModeBanner: false,
+      home: SoccerApp(),
     );
   }
 }
 
-const Color cBlue = Color(0xff212555);
-const Color cBlack = Color(0xff000000);
+class SoccerApp extends StatefulWidget {
+  @override
+  _SoccerAppState createState() => _SoccerAppState();
+}
+
+class _SoccerAppState extends State<SoccerApp> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Color(0xFFFAFAFA),
+      appBar: AppBar(
+        backgroundColor: Color(0xFFFAFAFA),
+        elevation: 0.0,
+        title: Text(
+          "SOCCERBOARD",
+          style: TextStyle(color: Colors.black),
+        ),
+        centerTitle: true,
+      ),
+      //now we have finished the api service let's call it
+      //Now befo re we create Our layout let's create our API service
+      body: FutureBuilder(
+        future: SoccerApi()
+            .getAllMatches(), //Here we will call our getData() method,
+        builder: (context, snapshot) {
+          //the future builder is very intersting to use when you work with api
+          if (snapshot.hasData) {
+            return PageBody(snapshot.data);
+          } else {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        }, // here we will buil the app layout
+      ),
+    );
+  }
+}
+//So as we can see w got our matches data,
+// the data size depend on the date and the time so
+// you can get as many data as many matches are curetly playing
+//Now let's try to get data by seasons and leagues
